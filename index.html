@@ -555,11 +555,11 @@ function localDb(){
 render();
 (async () => {
   try {
-    if (window.firebase && FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.projectId !== "montana---planning") {
+    if (window.firebase && FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.projectId.indexOf("_ICI") === -1) {
       firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore();
     }
   } catch(e){ console.error(e); db = null; }
-  if (!db) db = localDb();   // fichier ouvert hors claude.ai : stockage dans ce navigateur
+  if (!db) db = localDb();   // configuration absente : stockage dans ce navigateur
   if (!db) { S.dbOk = false; S.ready = true; render(); return; }
   S.dbOk = true;
   const loaded = new Set(), need = ["basse","decisions","echanges","haute","hauteAttrib","config"];
