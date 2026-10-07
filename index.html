@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="fr-BE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Montana · Semaines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+[hidden]{display:none!important}body{margin:0}
+/* Layout: one narrow column, a "chalet ledger" — weeks as rows of a guestbook, grouped by season */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --surface-2:#e8ece9; --line:#d3dad5;
+  --fg:#1e2622; --muted:#5d6a63; --accent:#8a4b22;
+  --cath:#2f6b4f; --cath-soft:#dcebe2;
+  --yves:#2f5487; --yves-soft:#dce5f2;
+  --fran:#8a6516; --fran-soft:#f1e7cf;
+  --ok:#2f7a45; --warn:#a4620c; --warn-soft:#fbecd3; --alert:#a8322b; --alert-soft:#f7dedb;
+  --dev:#7a3f8f; --dev-soft:#eedff3;
+  --f-display:"Zilla Slab", Rockwell, "Roboto Slab", Georgia, serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --surface-2:#252e2a; --line:#34403a;
+  --fg:#e5ebe7; --muted:#9aa8a0; --accent:#d58f5e;
+  --cath:#7cc5a0; --cath-soft:#1f3a2d; --yves:#8fb2e6; --yves-soft:#1e2c42; --fran:#d9b25e; --fran-soft:#3a2f17;
+  --ok:#7ccf93; --warn:#e3a554; --warn-soft:#3a2b14; --alert:#f08a80; --alert-soft:#3d1d1a; --dev:#cf9ae0; --dev-soft:#33213b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --surface-2:#252e2a; --line:#34403a;
+  --fg:#e5ebe7; --muted:#9aa8a0; --accent:#d58f5e;
+  --cath:#7cc5a0; --cath-soft:#1f3a2d; --yves:#8fb2e6; --yves-soft:#1e2c42; --fran:#d9b25e; --fran-soft:#3a2f17;
+  --ok:#7ccf93; --warn:#e3a554; --warn-soft:#3a2b14; --alert:#f08a80; --alert-soft:#3d1d1a; --dev:#cf9ae0; --dev-soft:#33213b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:880px;margin:0 auto}
+header.top{padding-block:28px 12px;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:2rem;margin:0;letter-spacing:-.01em}
+.brand .alt{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+nav.tabs a{padding:8px 14px;color:var(--muted);text-decoration:none;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-1px}
+nav.tabs a[aria-current="page"]{color:var(--fg);border-color:var(--accent)}
+nav.tabs a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h2{font-family:var(--f-display);font-weight:600;font-size:1.35rem;margin:0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:1.1rem;margin:0}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+details.rules summary{cursor:pointer;font-weight:600}
+details.rules ul{margin:10px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+button,.btn{font:inherit;font-weight:600;font-size:.88rem;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:4px 8px}
+button.danger{color:var(--alert)}
+button:disabled{opacity:.5;cursor:not-allowed}
+select,input[type=text],input[type=password],input[type=date]{font:inherit;font-size:.92rem;padding:6px 9px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg);max-width:100%}
+.season{display:flex;flex-direction:column;gap:0;margin-top:26px}
+.season-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;padding-bottom:8px;border-bottom:2px solid var(--fg)}
+.season-head .meta{font-size:.86rem;color:var(--muted)}
+.week{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.week.past{opacity:.55}
+.dates{font-family:var(--f-mono);font-size:.84rem;font-variant-numeric:tabular-nums;line-height:1.35}
+.dates b{font-weight:500;display:block;font-size:.9rem}
+.body{min-width:0;display:flex;flex-direction:column;gap:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--fg);white-space:nowrap}
+.chip.C{background:var(--cath-soft);color:var(--cath)}
+.chip.Y{background:var(--yves-soft);color:var(--yves)}
+.chip.F{background:var(--fran-soft);color:var(--fran)}
+.chip.ok{background:transparent;color:var(--ok);border:1px solid currentColor}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.alert{background:var(--alert-soft);color:var(--alert)}
+.chip.dev{background:var(--dev-soft);color:var(--dev)}
+.chip.open{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.period{font-weight:700}
+.hs .period{font-family:var(--f-display);font-size:1.05rem}
+.reqs{display:flex;flex-direction:column;gap:3px;font-size:.9rem}
+.req{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.req .when{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.req .note{color:var(--muted);font-style:italic}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.dot.C{background:var(--cath)}.dot.Y{background:var(--yves)}.dot.F{background:var(--fran)}
+form.inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface-2);padding:10px;border-radius:8px}
+form.inline input[type=text]{flex:1 1 160px}
+.devnote{font-size:.84rem;color:var(--dev)}
+.adminbar{border:1px solid var(--accent);border-radius:10px;padding:14px 16px;background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.lock{max-width:440px;margin:40px auto;display:flex;flex-direction:column;gap:12px}
+.lock .panel{display:flex;flex-direction:column;gap:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:8px;font-weight:600;font-size:.9rem;z-index:10;max-width:calc(100% - 32px)}
+.notice{padding:10px 14px;border-radius:8px;background:var(--warn-soft);color:var(--fg);font-size:.9rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.swap{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+.swap:last-child{border-bottom:0}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+@media (max-width:560px){.week{grid-template-columns:1fr}.dates b{display:inline;margin-right:6px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>Montana</h1><span class="alt">1 500 m · semaines du samedi au samedi</span></div>
+    <nav class="tabs" id="tabs">
+      <a href="#planning" data-page="planning">Planning</a>
+      <a href="#catherine" data-page="catherine">Branche Catherine</a>
+      <a href="#yves" data-page="yves">Branche Yves</a>
+    </nav>
+  </header>
+  <main id="app"><div class="empty">Chargement du planning…</div></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===== À COMPLÉTER : collez ici la configuration de votre projet Firebase ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBYK5gfuraHR5cSN7nHD3SY4ayyOKHFrFw",
+  authDomain: "montana---planning.firebaseapp.com",
+  projectId: "montana---planning",
+  storageBucket: "montana---planning.firebasestorage.app",
+  messagingSenderId: "735792628564",
+  appId: "1:735792628564:web:a46eaf3cc58d9fc6c4fec1"
+};
+/* ============================================================================ */
+(() => {
+/* ---------- Données de base ---------- */
+const MEMBERS = {
+  C: ["Catherine & Xavier","Benoît","Thibault","Anne","Sébastien","Laurent"],
+  Y: ["Yves & Katharina","Sandrine","Astrid","Jérôme","Ariane"],
+  F: ["François & Claire","Simon","Valentine","Alice","Raphaël"]
+};
+const BRANCH = {C:"Catherine", Y:"Yves", F:"François"};
+const branchOf = n => Object.keys(MEMBERS).find(b => MEMBERS[b].includes(n)) || "F";
+const HASH_Y = "76636671a22e681c67d95e1a9ce1ab2968892b7ac197e99b31d721f4c0378db2";
+const HASH_ADMIN = "117a49f6819e9cc55e9a7efad33051c9fa9cc471f7561cdd5e4e6d355dc37a03";
+/* Calendrier scolaire flamand (lundi de début de vacances) — source : vlaanderen.be */
+const CYCLES = [
+  {y:2026, kerst:"2026-12-21", krokus:"2027-02-08", pasen:"2027-03-29", herfst:"2027-11-01"},
+  {y:2027, kerst:"2027-12-27", krokus:"2028-02-28", pasen:"2028-04-03", herfst:"2028-10-30"},
+  {y:2028, kerst:"2028-12-25", krokus:"2029-02-12", pasen:"2029-04-02", herfst:"2029-10-29"},
+  {y:2029, kerst:"2029-12-24", krokus:"2030-03-04", pasen:"2030-04-08", herfst:null}
+];
+const START = "2026-12-19", END = "2030-08-24";
+
+/* ---------- Dates ---------- */
+const D = s => new Date(s + "T00:00:00Z");
+const iso = d => d.toISOString().slice(0,10);
+const add = (s,n) => { const d = D(s); d.setUTCDate(d.getUTCDate()+n); return iso(d); };
+const satOnOrBefore = s => add(s, -((D(s).getUTCDay()+1) % 7));
+const todayIso = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`; };
+const fmtS = s => D(s).toLocaleDateString("fr-BE",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
+const fmtL = s => D(s).toLocaleDateString("fr-BE",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
+const fmtTs = ts => { try { return new Date(ts).toLocaleDateString("fr-BE",{day:"numeric",month:"short"}); } catch(e){ return ""; } };
+
+/* ---------- Haute saison & saisons ---------- */
+const HIGH = {};     // weekStart -> {label, group, base, cycle}
+const SEASONS = [];  // {key,label,from,to,deadline,kind}
+CYCLES.forEach((c,k) => {
+  const A = k % 2 === 0 ? "C" : "Y", B = A === "C" ? "Y" : "C";
+  const g = (grp) => grp === "A" ? A : B;
+  const put = (w,label,grp) => { HIGH[w] = {label, group:grp, base:g(grp), cycle:k}; };
+  const n1 = add(c.kerst,-2); put(n1,"Noël · 1re semaine","A"); put(add(n1,7),"Noël · 2e semaine","B");
+  put(add(c.krokus,-2),"Carnaval","A");
+  const p1 = add(c.pasen,-2); put(p1,"Pâques · 1re semaine","B"); put(add(p1,7),"Pâques · 2e semaine","A");
+  const y1 = c.y + 1, j = satOnOrBefore(`${y1}-07-01`), a = satOnOrBefore(`${y1}-08-01`);
+  for (let w=j; w<a; w=add(w,7)) put(w,"Juillet","B");
+  for (let w=a; w<=`${y1}-08-28`; w=add(w,7)) put(w,"Août","A");
+  const t = c.herfst ? add(c.herfst,-2) : null;
+  if (t) put(t,"Toussaint","B");
+  const winFrom = k === 0 ? START : add(add(CYCLES[k-1].herfst,-2),7);
+  SEASONS.push({key:`H${c.y}`, kind:"hiver", label:`Hiver ${c.y}–${String(y1).slice(2)}`, from:winFrom, to:add(p1,7), deadline:`${c.y}-09-30`, cycle:k});
+  SEASONS.push({key:`E${y1}`, kind:"été", label:`Été ${y1}`, from:add(p1,14), to: t || END, deadline:`${y1}-03-31`, cycle:k});
+});
+const WEEKS = []; for (let w=START; w<=END; w=add(w,7)) WEEKS.push(w);
+const seasonOf = w => SEASONS.find(s => w >= s.from && w <= s.to);
+const cycleLabel = k => { const y = CYCLES[k].y; const A = k%2===0 ? "Catherine" : "Yves", B = k%2===0 ? "Yves" : "Catherine"; return `Année ${y}/${String(y+1).slice(2)} · A = ${A}, B = ${B}`; };
+
+/* ---------- État ---------- */
+const S = { basse:[], decisions:{}, echanges:[], haute:[], hauteAttrib:{}, config:{}, ready:false, dbOk:null };
+let db = null;
+const page = () => (["planning","catherine","yves"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "planning");
+const ss = { get(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); } catch(e){} } };
+const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const mine = () => { try { return JSON.parse(ls.get("mt-mine") || "[]"); } catch(e){ return []; } };
+const addMine = id => ls.set("mt-mine", JSON.stringify([...mine(), id]));
+let ui = { openReq:null, openDecide:null, showPast:false, filter:"all", swapC:"", swapY:"" };
+
+/* ---------- Effectif (après échanges) ---------- */
+function activeSwaps(){ return S.echanges.filter(x => x.status === "acceptee" || x.status === "annulation-demandee"); }
+function busySwapWeeks(){ const s = new Set(); S.echanges.filter(x => ["proposee","acceptee","annulation-demandee"].includes(x.status)).forEach(x => { s.add(x.wC); s.add(x.wY); }); return s; }
+function ownerOf(w){
+  const h = HIGH[w]; if (!h) return null;
+  const sw = activeSwaps().find(x => x.wC === w || x.wY === w);
+  if (!sw) return {branch:h.base, swap:null};
+  return {branch: h.base === "C" ? "Y" : "C", swap:sw};
+}
+
+/* ---------- Basse saison : statut ---------- */
+function deadlineOf(season){ return (S.config.deadlines && S.config.deadlines[season.key]) || season.deadline; }
+function lowStatus(w){
+  const se = seasonOf(w), dl = deadlineOf(se), closed = todayIso() > dl;
+  const reqs = S.basse.filter(r => r.w === w).sort((a,b) => (a.at||0) - (b.at||0));
+  const dec = S.decisions[w];
+  const onTime = reqs.filter(r => (r.day || "") <= dl), late = reqs.filter(r => (r.day || "") > dl);
+  let st;
+  if (dec && dec.name) st = {state:"confirmee", who:dec.name, by:dec.by};
+  else if (!closed) st = {state:"ouverte"};
+  else if (onTime.length === 1) st = {state:"auto", who:onTime[0].name};
+  else if (onTime.length > 1) st = {state:"arbitrage"};
+  else if (late.length) st = {state:"tardive", who:late[0].name};
+  else st = {state:"libre"};
+  st.canRequest = !(dec && dec.name) && (!closed || reqs.length === 0);
+  return Object.assign(st, {reqs, onTime, late, dl, closed, season:se});
+}
+
+/* ---------- Base de données ---------- */
+function rows(snap){
+  const arr = Array.isArray(snap) ? snap : (snap && (snap.docs || snap.documents || snap.items)) || [];
+  return arr.map(d => { const data = typeof d.data === "function" ? d.data() : (d.data && typeof d.data === "object" ? d.data : d); return Object.assign({}, data, {id: d.id != null ? d.id : (data && data.id)}); });
+}
+function watch(col, cb){
+  const ref = db.collection(col);
+  const poll = async () => { try { const r = await ref.get(); cb(rows(r)); } catch(e){ console.warn(col, e); } };
+  if (typeof ref.onSnapshot === "function") {
+    try { ref.onSnapshot(s => cb(rows(s)), e => { console.warn(col, e); poll(); }); return; } catch(e){ console.warn(e); }
+  }
+  poll(); setInterval(poll, 20000);
+}
+async function put(col, id, data){
+  const ref = db.collection(col).doc(id);
+  try { await ref.set(data); }
+  catch(e){ if (typeof ref.update === "function") await ref.update(data); else throw e; }
+}
+async function del(col, id){ await db.collection(col).doc(id).delete(); }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+async function act(fn, okMsg){
+  if (!db) { toast("Enregistrement impossible : la base de données n’est pas disponible."); return; }
+  try { await fn(); if (okMsg) toast(okMsg); } catch(e){ console.error(e); toast("L'enregistrement a échoué. Vérifiez votre connexion internet, puis réessayez."); }
+}
+
+/* ---------- Mots de passe ---------- */
+async function sha(s){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("montana|" + s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,"0")).join(""); }
+async function checkPw(branch, pw){
+  const h = await sha(pw);
+  if (branch === "Y") return h === HASH_Y;
+  return !!(S.config.catherine && S.config.catherine.hash === h);
+}
+const unlocked = b => ss.get("mt-unlock-" + b) === "1";
+const admin = () => ss.get("mt-admin");   // "Yves" | "Catherine" | null
+
+/* ---------- Rendu ---------- */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const chipB = b => `<span class="chip ${b}"><span class="dot ${b}"></span>Branche ${BRANCH[b]}</span>`;
+const nameSel = (id, branches, sel) => `<select id="${id}" required><option value="">Votre nom…</option>${branches.map(b => `<optgroup label="Branche ${BRANCH[b]}">${MEMBERS[b].map(n => `<option${n===sel?" selected":""}>${esc(n)}</option>`).join("")}</optgroup>`).join("")}</select>`;
+const datesCell = w => `<div class="dates"><b>${fmtS(w)}</b>→ ${fmtS(add(w,7))} ${D(add(w,7)).getUTCFullYear()}</div>`;
+
+let pending = false;
+function render(){
+  const a = document.activeElement;
+  if (a && a.closest && a.closest("#app") && ["INPUT","SELECT","TEXTAREA"].includes(a.tagName)) { pending = true; return; }
+  pending = false;
+  const p = page();
+  document.querySelectorAll("#tabs a").forEach(x => x.dataset.page === p ? x.setAttribute("aria-current","page") : x.removeAttribute("aria-current"));
+  const app = document.getElementById("app");
+  if (!S.ready && S.dbOk !== false) { app.innerHTML = `<div class="empty">Chargement du planning…</div>`; return; }
+  app.innerHTML = p === "planning" ? renderPlanning() : renderBranch(p === "yves" ? "Y" : "C");
+}
+document.addEventListener("focusout", () => setTimeout(() => { if (pending) render(); }, 0));
+
+function dbNotice(){
+  if (db && db.local) return `<div class="notice">Mode local : les demandes sont enregistrées uniquement dans ce navigateur, sur cet appareil. La configuration Firebase n’est pas encore renseignée dans le fichier.</div>`;
+  return S.dbOk === false ? `<div class="notice">Le planning partagé n'est pas disponible dans cette vue. Vérifiez votre connexion internet puis rechargez la page.</div>` : "";
+}
+
+function renderPlanning(){
+  const ad = admin(), t = todayIso();
+  const seasonsShown = SEASONS.filter(s => ui.showPast || s.to >= t).filter(s => ui.filter === "all" || ui.filter === s.key);
+  const toDecide = WEEKS.filter(w => !HIGH[w] && w >= t).map(lowStatus).filter(s => s.state === "arbitrage").length;
+  let h = `<div class="stack" style="margin-top:18px">${dbNotice()}
+  <details class="rules panel"><summary>Règles de répartition</summary>
+   <ul class="small">
+    <li><b>Haute saison</b> (calendrier scolaire flamand) : semaines A et B. En 2026/27 (Noël 2026 → Toussaint 2027), A = branche Catherine, B = branche Yves ; on alterne chaque année.</li>
+    <li>Noël 1re sem. A · Noël 2e sem. B · Carnaval A · Pâques 1re sem. B · Pâques 2e sem. A · Juillet (y c. la semaine du 1er juillet) B · Août (y c. la semaine du 1er août) A · Toussaint B.</li>
+    <li><b>Basse saison</b> : demandes au plus tard le 30 septembre pour l'hiver (Toussaint → Pâques compris) et le 31 mars pour l'été (après Pâques → avant la Toussaint).</li>
+    <li>Une seule demande à l'échéance : la semaine revient au demandeur. Plusieurs : Yves et Catherine décident. Les branches Catherine et Yves sont prioritaires ; la branche François peut demander les semaines qu'elles ne prennent pas.</li>
+    <li>Yves et Catherine peuvent échanger d'un commun accord une semaine de haute saison d'une branche contre une semaine de l'autre. L'échange apparaît comme déviation au planning de base.</li>
+   </ul></details>
+  ${renderAdminBar(toDecide)}
+  <div class="row" style="justify-content:space-between">
+    <div class="legend"><span><span class="dot C"></span>Catherine</span><span><span class="dot Y"></span>Yves</span><span><span class="dot F"></span>François</span><span><span class="chip dev">Déviation</span>échange convenu</span></div>
+    <div class="row">
+      <label class="small muted" for="f-season">Saison</label>
+      <select id="f-season"><option value="all">Toutes</option>${SEASONS.filter(s => ui.showPast || s.to >= t).map(s => `<option value="${s.key}"${ui.filter===s.key?" selected":""}>${s.label}</option>`).join("")}</select>
+      <button class="ghost" data-act="past">${ui.showPast ? "Masquer le passé" : "Voir le passé"}</button>
+    </div>
+  </div></div>`;
+  seasonsShown.forEach(se => {
+    const dl = deadlineOf(se), closed = t > dl;
+    const weeks = WEEKS.filter(w => w >= se.from && w <= se.to && (ui.showPast || add(w,7) > t));
+    if (!weeks.length) return;
+    h += `<section class="season"><div class="season-head"><div><div class="label">${esc(cycleLabel(se.cycle))}</div><h2>${se.label}</h2></div>
+      <div class="meta">${closed ? `Demandes clôturées le ${fmtL(dl)}` : `Demandes basse saison jusqu'au <b>${fmtL(dl)}</b>`}</div></div>`;
+    weeks.forEach(w => { h += HIGH[w] ? weekHigh(w) : weekLow(w); });
+    h += `</section>`;
+  });
+  return h;
+}
+
+function weekHigh(w){
+  const hi = HIGH[w], o = ownerOf(w), past = add(w,7) <= todayIso();
+  return `<div class="week hs${past?" past":""}">${datesCell(w)}<div class="body">
+    <div class="chips"><span class="period">${hi.label}</span><span class="chip">Haute saison · ${hi.group}</span>${chipB(o.branch)}${o.swap ? `<span class="chip dev">Déviation</span>` : ""}</div>
+    ${o.swap ? `<div class="devnote">Déviation au planning de base (initialement branche ${BRANCH[hi.base]}), convenue entre Yves et Catherine — échangée avec la semaine du ${fmtS(o.swap.wC === w ? o.swap.wY : o.swap.wC)} ${D(o.swap.wC === w ? o.swap.wY : o.swap.wC).getUTCFullYear()}.</div>` : ""}
+  </div></div>`;
+}
+
+function statusChip(st){
+  switch(st.state){
+    case "confirmee": return `<span class="chip ok">Attribuée · ${esc(st.who)}</span><span class="small muted">confirmé par ${esc(st.by||"")}</span>`;
+    case "auto": return `<span class="chip ok">Attribuée · ${esc(st.who)}</span><span class="small muted">demande unique</span>`;
+    case "tardive": return `<span class="chip warn">Demandée après l'échéance · ${esc(st.who)}</span><span class="small muted">à confirmer</span>`;
+    case "arbitrage": return `<span class="chip alert">À arbitrer par Yves et Catherine</span>`;
+    case "libre": return `<span class="chip open">Libre</span>`;
+    default: return st.reqs.length ? `<span class="chip">${st.reqs.length} demande${st.reqs.length>1?"s":""}</span>` : `<span class="chip open">Pas encore de demande</span>`;
+  }
+}
+
+function weekLow(w){
+  const st = lowStatus(w), past = add(w,7) <= todayIso(), ad = admin(), m = mine();
+  let h = `<div class="week${past?" past":""}">${datesCell(w)}<div class="body">
+    <div class="chips"><span class="period muted">Basse saison</span>${statusChip(st)}</div>`;
+  if (st.reqs.length) {
+    h += `<div class="reqs">${st.reqs.map(r => { const b = branchOf(r.name); return `<div class="req"><span class="dot ${b}"></span><span>${esc(r.name)}</span>${b==="F"?`<span class="small muted">(subsidiaire)</span>`:""}<span class="when">${fmtTs(r.at)}${(r.day||"") > st.dl ? " · tardive" : ""}</span>${r.note?`<span class="note">${esc(r.note)}</span>`:""}${(m.includes(r.id) || ad) && !past ? `<button class="ghost danger" data-act="unreq" data-id="${esc(r.id)}">Retirer</button>` : ""}</div>`; }).join("")}</div>`;
+  }
+  if (!past) {
+    const btns = [];
+    if (st.canRequest && ui.openReq !== w) btns.push(`<button data-act="openreq" data-w="${w}">Demander cette semaine</button>`);
+    if (ad && ui.openDecide !== w) btns.push(`<button class="ghost" data-act="opendecide" data-w="${w}">${st.state==="confirmee" ? "Modifier l'attribution" : "Attribuer"}</button>`);
+    if (btns.length) h += `<div class="row">${btns.join("")}</div>`;
+    if (ui.openReq === w) h += `<form class="inline" data-form="req" data-w="${w}">${nameSel("rq-name-"+w, ["C","Y","F"], ls.get("mt-name"))}<input type="text" id="rq-note-${w}" placeholder="Remarque (facultatif)" maxlength="140"><button class="primary" type="submit">Envoyer la demande</button><button type="button" class="ghost" data-act="close">Annuler</button></form>`;
+    if (ad && ui.openDecide === w) {
+      const names = [...new Set(st.reqs.map(r => r.name))];
+      h += `<form class="inline" data-form="decide" data-w="${w}"><span class="small">Attribuer à</span><select id="dc-${w}" required><option value="">Choisir…</option>${names.length ? `<optgroup label="Demandeurs">${names.map(n => `<option>${esc(n)}</option>`).join("")}</optgroup>` : ""}${["C","Y","F"].map(b => `<optgroup label="Branche ${BRANCH[b]}">${MEMBERS[b].map(n => `<option>${esc(n)}</option>`).join("")}</optgroup>`).join("")}</select><button class="primary" type="submit">Confirmer (${esc(ad)})</button>${S.decisions[w] ? `<button type="button" class="ghost danger" data-act="undecide" data-w="${w}">Annuler l'attribution</button>` : ""}<button type="button" class="ghost" data-act="close">Fermer</button></form>`;
+    }
+  }
+  return h + `</div></div>`;
+}
+
+function renderAdminBar(toDecide){
+  const ad = admin();
+  if (!ad) {
+    if (ui.adminLogin) return `<form class="adminbar" data-form="admin"><h3>Espace Yves & Catherine</h3>
+      <p class="small muted">Pour confirmer les attributions et échanger des semaines.</p>
+      <div class="row"><select id="ad-who" required><option value="">Je suis…</option><option>Yves</option><option>Catherine</option></select><input type="password" id="ad-pw" placeholder="Mot de passe" autocomplete="current-password"><button class="primary" type="submit">Entrer</button><button type="button" class="ghost" data-act="adminclose">Annuler</button></div></form>`;
+    return `<div class="row" style="justify-content:flex-end"><button class="ghost" data-act="adminopen">Espace Yves & Catherine</button></div>`;
+  }
+  const other = ad === "Yves" ? "Catherine" : "Yves";
+  const t = todayIso(), busy = busySwapWeeks();
+  const futureHigh = WEEKS.filter(w => HIGH[w] && w > t && !busy.has(w));
+  const optsFor = b => futureHigh.filter(w => ownerOf(w).branch === b).map(w => `<option value="${w}">${fmtS(w)} ${D(w).getUTCFullYear()} · ${HIGH[w].label}</option>`).join("");
+  const swaps = S.echanges.filter(x => x.status !== "refusee" && x.status !== "retiree").sort((a,b) => (b.at||0)-(a.at||0));
+  const swapLine = x => {
+    let actions = "", label = "";
+    if (x.status === "proposee") { label = `<span class="chip warn">Proposé par ${esc(x.by)}</span>`; actions = x.by === ad ? `<button class="ghost danger" data-act="swap" data-op="retirer" data-id="${x.id}">Retirer</button>` : `<button class="primary" data-act="swap" data-op="accepter" data-id="${x.id}">Accepter</button><button class="ghost danger" data-act="swap" data-op="refuser" data-id="${x.id}">Refuser</button>`; }
+    else if (x.status === "acceptee") { label = `<span class="chip dev">Convenu</span>`; actions = `<button class="ghost" data-act="swap" data-op="demander-annulation" data-id="${x.id}">Proposer d'annuler</button>`; }
+    else if (x.status === "annulation-demandee") { label = `<span class="chip warn">Annulation demandée par ${esc(x.cancelBy)}</span>`; actions = x.cancelBy === ad ? `<button class="ghost" data-act="swap" data-op="maintenir" data-id="${x.id}">Retirer la demande</button>` : `<button class="primary" data-act="swap" data-op="annuler" data-id="${x.id}">Confirmer l'annulation</button><button class="ghost" data-act="swap" data-op="maintenir" data-id="${x.id}">Maintenir l'échange</button>`; }
+    else if (x.status === "annulee") { label = `<span class="chip">Annulé</span>`; }
+    return `<div class="swap"><div class="chips">${label}<span>${fmtS(x.wC)} ${D(x.wC).getUTCFullYear()} (${esc(HIGH[x.wC]?.label)}) ⇄ ${fmtS(x.wY)} ${D(x.wY).getUTCFullYear()} (${esc(HIGH[x.wY]?.label)})</span></div>${x.note?`<div class="small muted">${esc(x.note)}</div>`:""}${actions?`<div class="row">${actions}</div>`:""}</div>`;
+  };
+  const dls = SEASONS.filter(s => s.to >= t);
+  return `<div class="adminbar">
+    <div class="row" style="justify-content:space-between"><h3>Espace Yves & Catherine · connecté·e en tant que ${esc(ad)}</h3><button class="ghost" data-act="adminout">Quitter</button></div>
+    <p class="small">${toDecide ? `<b>${toDecide} semaine${toDecide>1?"s":""} de basse saison à arbitrer.</b> ` : "Aucune semaine à arbitrer. "}Utilisez « Attribuer » sur chaque semaine pour confirmer qui l'occupe.</p>
+    <details><summary class="small"><b>Échanger des semaines de haute saison</b></summary>
+      <form class="inline" data-form="swap" style="margin-top:10px">
+        <select id="sw-c" required><option value="">Semaine branche Catherine…</option>${optsFor("C")}</select>
+        <span>⇄</span>
+        <select id="sw-y" required><option value="">Semaine branche Yves…</option>${optsFor("Y")}</select>
+        <input type="text" id="sw-note" placeholder="Motif (facultatif)" maxlength="140">
+        <button class="primary" type="submit">Proposer à ${other}</button>
+      </form>
+      <p class="small muted" style="margin-top:6px">L'échange ne s'applique qu'une fois accepté par ${other}.</p>
+      <div style="margin-top:8px">${swaps.length ? swaps.map(swapLine).join("") : `<p class="small muted">Aucun échange pour l'instant.</p>`}</div>
+    </details>
+    <details><summary class="small"><b>Dates limites</b></summary>
+      <form class="inline" data-form="deadline" style="margin-top:10px">
+        <select id="dl-season" required>${dls.map(s => `<option value="${s.key}">${s.label} — actuellement ${fmtL(deadlineOf(s))}</option>`).join("")}</select>
+        <input type="date" id="dl-date" required><button type="submit">Modifier</button><button type="button" class="ghost" data-act="dlreset">Revenir à la règle</button>
+      </form>
+    </details>
+  </div>`;
+}
+
+function renderBranch(b){
+  const other = b === "C" ? "Y" : "C";
+  if (b === "C" && S.ready && !(S.config.catherine && S.config.catherine.hash)) {
+    return `<div class="lock">${dbNotice()}<div class="panel"><h2>Bienvenue, branche Catherine</h2>
+      <p>Vous êtes le premier à ouvrir cette page. Choisissez le mot de passe qui la protégera, puis communiquez-le à toute la branche (Catherine & Xavier, Benoît, Thibault, Anne, Sébastien, Laurent).</p>
+      <form class="stack" data-form="setpw"><input type="password" id="np1" placeholder="Nouveau mot de passe" minlength="6" required autocomplete="new-password"><input type="password" id="np2" placeholder="Confirmer le mot de passe" required autocomplete="new-password"><button class="primary" type="submit">Enregistrer le mot de passe</button></form>
+      <p class="small muted">6 caractères minimum.</p></div></div>`;
+  }
+  if (!unlocked(b)) {
+    return `<div class="lock">${dbNotice()}<form class="panel" data-form="unlock" data-b="${b}"><h2>Branche ${BRANCH[b]}</h2><p class="muted">Cette page est réservée aux membres de la branche.</p>
+      <input type="password" id="ul-pw" placeholder="Mot de passe" required autocomplete="current-password"><button class="primary" type="submit">Ouvrir</button></form></div>`;
+  }
+  const t = todayIso();
+  const weeks = WEEKS.filter(w => HIGH[w] && ownerOf(w).branch === b && (ui.showPast || add(w,7) > t));
+  const m = mine();
+  let h = `<div class="stack" style="margin-top:18px">${dbNotice()}
+    <div class="row" style="justify-content:space-between"><div><div class="label">Haute saison réservée</div><h2>Branche ${BRANCH[b]}</h2></div>
+    <div class="row"><button class="ghost" data-act="past">${ui.showPast ? "Masquer le passé" : "Voir le passé"}</button>${b==="C" ? `<button class="ghost" data-act="chpw">Changer le mot de passe</button>` : ""}<button class="ghost" data-act="lock" data-b="${b}">Verrouiller</button></div></div>
+    ${ui.chpw && b==="C" ? `<form class="inline" data-form="setpw"><input type="password" id="np1" placeholder="Nouveau mot de passe" minlength="6" required autocomplete="new-password"><input type="password" id="np2" placeholder="Confirmer" required autocomplete="new-password"><button class="primary" type="submit">Enregistrer</button><button type="button" class="ghost" data-act="close">Annuler</button></form>` : ""}
+    <p class="small muted">Indiquez ici vos souhaits pour les semaines de haute saison de la branche. Les semaines échangées avec la branche ${BRANCH[other]} apparaissent avec la mention « Déviation ».</p></div>`;
+  let cyc = -1;
+  weeks.forEach(w => {
+    const hi = HIGH[w], o = ownerOf(w), past = add(w,7) <= t;
+    if (hi.cycle !== cyc) { if (cyc !== -1) h += `</section>`; cyc = hi.cycle; h += `<section class="season"><div class="season-head"><h2>${esc(cycleLabel(cyc).split(" · ")[0])}</h2><div class="meta">${esc(cycleLabel(cyc).split(" · ")[1])}</div></div>`; }
+    const reqs = S.haute.filter(r => r.w === w && r.branch === b).sort((x,y) => (x.at||0)-(y.at||0));
+    const at = S.hauteAttrib[w + "-" + b];
+    h += `<div class="week hs${past?" past":""}">${datesCell(w)}<div class="body">
+      <div class="chips"><span class="period">${hi.label}</span><span class="chip">${hi.group}</span>${o.swap ? `<span class="chip dev">Déviation</span>` : ""}${at && at.name ? `<span class="chip ok">Retenu · ${esc(at.name)}</span>` : (reqs.length ? `<span class="chip">${reqs.length} souhait${reqs.length>1?"s":""}</span>` : `<span class="chip open">Pas encore de souhait</span>`)}</div>
+      ${o.swap ? `<div class="devnote">Déviation convenue entre Yves et Catherine (semaine initialement de la branche ${BRANCH[hi.base]}).</div>` : ""}
+      ${reqs.length ? `<div class="reqs">${reqs.map(r => `<div class="req"><span class="dot ${b}"></span><span>${esc(r.name)}</span><span class="when">${fmtTs(r.at)}</span>${r.note?`<span class="note">${esc(r.note)}</span>`:""}${!past ? `<button class="ghost danger" data-act="unhaute" data-id="${esc(r.id)}">Retirer</button>` : ""}</div>`).join("")}</div>` : ""}
+      ${!past ? `<div class="row">${ui.openReq !== w ? `<button data-act="openreq" data-w="${w}">Ajouter un souhait</button>` : ""}${ui.openDecide !== w ? `<button class="ghost" data-act="opendecide" data-w="${w}">${at && at.name ? "Modifier qui part" : "Noter qui part"}</button>` : ""}</div>` : ""}
+      ${ui.openReq === w ? `<form class="inline" data-form="haute" data-w="${w}" data-b="${b}">${nameSel("hq-name-"+w,[b], ls.get("mt-name"))}<input type="text" id="hq-note-${w}" placeholder="Remarque (facultatif)" maxlength="140"><button class="primary" type="submit">Enregistrer</button><button type="button" class="ghost" data-act="close">Annuler</button></form>` : ""}
+      ${ui.openDecide === w ? `<form class="inline" data-form="hattrib" data-w="${w}" data-b="${b}"><span class="small">Semaine retenue pour</span><select id="ha-${w}" required><option value="">Choisir…</option>${MEMBERS[b].map(n => `<option${at&&at.name===n?" selected":""}>${esc(n)}</option>`).join("")}</select><button class="primary" type="submit">Enregistrer</button>${at && at.name ? `<button type="button" class="ghost danger" data-act="unhattrib" data-w="${w}" data-b="${b}">Effacer</button>` : ""}<button type="button" class="ghost" data-act="close">Fermer</button></form>` : ""}
+    </div></div>`;
+  });
+  if (cyc !== -1) h += `</section>`;
+  if (!weeks.length) h += `<div class="empty" style="margin-top:20px">Aucune semaine de haute saison à venir pour la branche.</div>`;
+  return h;
+}
+
+/* ---------- Interactions ---------- */
+let toastT;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
+
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, w = el.dataset.w;
+  if (a === "openreq") { ui.openReq = w; ui.openDecide = null; }
+  else if (a === "opendecide") { ui.openDecide = w; ui.openReq = null; }
+  else if (a === "close") { ui.openReq = ui.openDecide = null; ui.chpw = false; }
+  else if (a === "past") ui.showPast = !ui.showPast;
+  else if (a === "adminopen") ui.adminLogin = true;
+  else if (a === "adminclose") ui.adminLogin = false;
+  else if (a === "adminout") { ss.set("mt-admin", null); ui.adminLogin = false; }
+  else if (a === "lock") ss.set("mt-unlock-" + el.dataset.b, null);
+  else if (a === "chpw") ui.chpw = true;
+  else if (a === "unreq") await act(() => del("basse", el.dataset.id), "Demande retirée");
+  else if (a === "unhaute") await act(() => del("haute", el.dataset.id), "Souhait retiré");
+  else if (a === "undecide") { await act(() => del("decisions", w), "Attribution annulée"); ui.openDecide = null; }
+  else if (a === "unhattrib") { await act(() => del("hauteAttrib", w + "-" + el.dataset.b), "Effacé"); ui.openDecide = null; }
+  else if (a === "dlreset") {
+    const k = val("dl-season"); const d = Object.assign({}, (S.config.deadlines) || {}); delete d[k];
+    await act(() => put("config", "deadlines", {deadlines:d}), "Date limite rétablie");
+  }
+  else if (a === "swap") {
+    const x = S.echanges.find(s => s.id === el.dataset.id); if (!x) return;
+    const ad = admin(), op = el.dataset.op, now = Date.now();
+    const next = {retirer:{status:"retiree"}, accepter:{status:"acceptee", acceptedBy:ad, acceptedAt:now}, refuser:{status:"refusee", refusedBy:ad},
+      "demander-annulation":{status:"annulation-demandee", cancelBy:ad}, maintenir:{status:"acceptee", cancelBy:null}, annuler:{status:"annulee", cancelledAt:now}}[op];
+    if (op === "accepter") { const busy = activeSwaps(); if (busy.some(s => s.id !== x.id && [s.wC,s.wY].some(v => v === x.wC || v === x.wY))) { toast("Une de ces semaines fait déjà partie d'un autre échange."); return; } }
+    const data = Object.assign({}, x, next); delete data.id;
+    await act(() => put("echanges", x.id, data), {accepter:"Échange accepté : le planning est mis à jour", annuler:"Échange annulé : retour au planning de base"}[op] || "Enregistré");
+  }
+  else return;
+  render();
+});
+document.addEventListener("change", e => { if (e.target.id === "f-season") { ui.filter = e.target.value; e.target.blur(); render(); } });
+
+document.addEventListener("submit", async e => {
+  const f = e.target.closest("form[data-form]"); if (!f) return;
+  e.preventDefault();
+  const k = f.dataset.form, w = f.dataset.w;
+  if (k === "req") {
+    const name = val("rq-name-" + w); if (!name) return;
+    const st = lowStatus(w); if (!st.canRequest) { toast("Cette semaine n'est plus disponible."); return; }
+    ls.set("mt-name", name);
+    const id = uid(); addMine(id);
+    await act(() => put("basse", id, {w, name, branch:branchOf(name), note:val("rq-note-" + w), at:Date.now(), day:todayIso()}), "Demande enregistrée");
+    ui.openReq = null;
+  } else if (k === "haute") {
+    const name = val("hq-name-" + w); if (!name) return; ls.set("mt-name", name);
+    const id = uid();
+    await act(() => put("haute", id, {w, branch:f.dataset.b, name, note:val("hq-note-" + w), at:Date.now()}), "Souhait enregistré");
+    ui.openReq = null;
+  } else if (k === "decide") {
+    const name = val("dc-" + w); if (!name) return;
+    await act(() => put("decisions", w, {name, by:admin(), at:Date.now()}), "Attribution confirmée");
+    ui.openDecide = null;
+  } else if (k === "hattrib") {
+    const name = val("ha-" + w); if (!name) return;
+    await act(() => put("hauteAttrib", w + "-" + f.dataset.b, {w, branch:f.dataset.b, name, at:Date.now()}), "Enregistré");
+    ui.openDecide = null;
+  } else if (k === "swap") {
+    const wC = val("sw-c"), wY = val("sw-y"); if (!wC || !wY) return;
+    const busy = busySwapWeeks(); if (busy.has(wC) || busy.has(wY)) { toast("Une de ces semaines fait déjà partie d'un échange."); return; }
+    // wC = semaine actuellement à la branche Catherine, wY = semaine actuellement à la branche Yves
+    await act(() => put("echanges", uid(), {wC, wY, by:admin(), note:val("sw-note"), status:"proposee", at:Date.now()}), "Proposition envoyée");
+  } else if (k === "deadline") {
+    const key = val("dl-season"), d = val("dl-date"); if (!key || !d) return;
+    await act(() => put("config", "deadlines", {deadlines:Object.assign({}, S.config.deadlines || {}, {[key]:d})}), "Date limite modifiée");
+  } else if (k === "admin") {
+    const who = val("ad-who"), pw = document.getElementById("ad-pw").value;
+    if (!who) return;
+    if ((await sha(pw)) === HASH_ADMIN) { ss.set("mt-admin", who); ui.adminLogin = false; toast("Bienvenue, " + who); }
+    else { toast("Mot de passe incorrect."); return; }
+  } else if (k === "unlock") {
+    const pw = document.getElementById("ul-pw").value;
+    if (await checkPw(f.dataset.b, pw)) ss.set("mt-unlock-" + f.dataset.b, "1");
+    else { toast("Mot de passe incorrect."); return; }
+  } else if (k === "setpw") {
+    const p1 = document.getElementById("np1").value, p2 = document.getElementById("np2").value;
+    if (p1.length < 6) { toast("Choisissez au moins 6 caractères."); return; }
+    if (p1 !== p2) { toast("Les deux mots de passe ne correspondent pas."); return; }
+    const hash = await sha(p1);
+    await act(() => put("config", "catherine", {hash, at:Date.now()}), "Mot de passe enregistré. Communiquez-le à la branche.");
+    S.config.catherine = {hash}; ss.set("mt-unlock-C", "1"); ui.chpw = false;
+  }
+  if (document.activeElement) document.activeElement.blur();
+  render();
+});
+window.addEventListener("hashchange", () => { ui.openReq = ui.openDecide = null; render(); });
+
+/* ---------- Stockage local (fichier HTML ouvert hors claude.ai) ---------- */
+function localDb(){
+  const KEY = "mt-localdb", subs = {};
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return {}; } };
+  const save = o => { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch(e){} };
+  const snap = c => { const o = load()[c] || {}; return Object.keys(o).map(id => Object.assign({id}, o[id])); };
+  const emit = c => (subs[c] || []).forEach(f => f(snap(c)));
+  window.addEventListener("storage", e => { if (e.key === KEY) Object.keys(subs).forEach(emit); });
+  return { local:true, collection: c => ({
+    onSnapshot(cb){ (subs[c] = subs[c] || []).push(cb); setTimeout(() => cb(snap(c)), 0); },
+    async get(){ return snap(c); },
+    doc: id => ({
+      async set(d){ const o = load(); o[c] = o[c] || {}; o[c][id] = d; save(o); emit(c); },
+      async delete(){ const o = load(); if (o[c]) delete o[c][id]; save(o); emit(c); }
+    })
+  })};
+}
+
+/* ---------- Démarrage ---------- */
+render();
+(async () => {
+  try {
+    if (window.firebase && FIREBASE_CONFIG.projectId && FIREBASE_CONFIG.projectId !== "montana---planning") {
+      firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore();
+    }
+  } catch(e){ console.error(e); db = null; }
+  if (!db) db = localDb();   // fichier ouvert hors claude.ai : stockage dans ce navigateur
+  if (!db) { S.dbOk = false; S.ready = true; render(); return; }
+  S.dbOk = true;
+  const loaded = new Set(), need = ["basse","decisions","echanges","haute","hauteAttrib","config"];
+  const done = c => { loaded.add(c); if (loaded.size === need.length) S.ready = true; render(); };
+  watch("basse", r => { S.basse = r; done("basse"); });
+  watch("haute", r => { S.haute = r; done("haute"); });
+  watch("echanges", r => { S.echanges = r; done("echanges"); });
+  watch("decisions", r => { S.decisions = Object.fromEntries(r.map(x => [x.id, x])); done("decisions"); });
+  watch("hauteAttrib", r => { S.hauteAttrib = Object.fromEntries(r.map(x => [x.id, x])); done("hauteAttrib"); });
+  watch("config", r => { const m = Object.fromEntries(r.map(x => [x.id, x])); S.config = {catherine:m.catherine, deadlines:(m.deadlines && m.deadlines.deadlines) || {}}; done("config"); });
+  setTimeout(() => { if (!S.ready) { S.ready = true; render(); } }, 8000);
+})();
+})();
+</script>
+</body>
+</html>
